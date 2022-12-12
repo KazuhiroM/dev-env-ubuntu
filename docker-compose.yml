@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  vm-ubuntu:
+    build:
+      context: .
+      dockerfile: dockerfiles/vm-ubuntu/Dockerfile
+    image: vm-ubuntu
+    volumes: 
+      - ./home:/home
+    tty: true
+    command: /bin/bash
