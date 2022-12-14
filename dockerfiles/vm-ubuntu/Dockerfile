@@ -24,7 +24,9 @@ RUN apt-get update --yes && \
     locales \
     sudo \
     tini \
-    wget && \
+    wget \
+    vim  \
+    zip &&\
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
     echo "ja_JP.UTF-8 UTF-8" > /etc/locale.gen && \
     locale-gen
@@ -39,21 +41,11 @@ ENV SHELL=/bin/bash \
     HOME="/home/${UBNT_USER}"
 
 RUN sed -i 's/^#force_color_prompt=yes/force_color_prompt=yes/' /etc/skel/.bashrc
+RUN useradd -l -m -s /bin/bash -N -u ${UBNT_UID} ${UBNT_USER} && \
+    usermod -aG sudo ${UBNT_USER} && \
+    echo "${UBNT_USER} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-RUN echo "auth requisite pam_deny.so" >> /etc/pam.d/su && \
-    sed -i.bak -e 's/^%admin/#%admin/' /etc/sudoers && \
-    sed -i.bak -e 's/^%sudo/#%sudo/' /etc/sudoers && \
-    useradd -l -m -s /bin/bash -N -u "${UBNT_UID}" "$UBNT_USER}" && \
-    chmod g+w /etc/passwd
-
-RUN echo "${UBNT_USER} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-
-RUN mkdir -p "/home/${UBNT_USER}/work" && \
-    chown -R ${UBNT_UID}:${UBNT_GID} /home/${UBNT_USER}
-# ENTRYPOINT ["tini", "-g", "--"]
-
-USER ${UBNT_UID}
-RUN cat /etc/skel/.bashrc > ~/.bashrc
-
-WORKDIR "${HOME}"
+USER ${UBNT_USER}
+WORKDIR ${HOME}
+RUN cat /etc/skel/.bashrc > ./.bashrc
 
